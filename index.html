@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Arno vs. Daniel</title>
-<meta name="description" content="Die Volkszählung: Wer hat mehr Namensvettern in der Gruppe?">
+<meta name="description" content="The census: who has more namesakes in the group?">
 <style>
   :root{
     --bg:#0b0a07;
@@ -17,7 +17,7 @@
     --text:#f3efe4;
     --text-dim:#b3ab97;
     --text-faint:#7d765f;
-    /* Chart-Farben — validiert: CVD ΔE 22.4, Normalsicht ΔE 24.9, Kontrast > 3:1 */
+    /* Chart colours — validated: CVD ΔE 22.4, normal vision ΔE 24.9, contrast > 3:1 */
     --arno:#b88a1e;
     --daniel:#3f7fb8;
     --arno-lift:#d9a52c;
@@ -39,7 +39,7 @@
   .wrap{position:relative; z-index:1; width:100%; max-width:960px; margin:0 auto;
         padding-block:40px 64px; padding-left:20px; padding-right:20px;}
 
-  /* ---------- Kopf ---------- */
+  /* ---------- header ---------- */
   header.top{text-align:center; margin-bottom:34px;}
   .eyebrow{
     display:inline-block; font-size:11px; letter-spacing:.22em; text-transform:uppercase;
@@ -55,7 +55,7 @@
   h1 .d{color:var(--daniel-lift);}
   .sub{margin:0 auto; max-width:46ch; color:var(--text-dim); font-size:clamp(14px,3.4vw,16.5px);}
 
-  /* ---------- Hinweisbanner ---------- */
+  /* ---------- notice banner ---------- */
   .banner{
     display:none; align-items:flex-start; gap:11px; margin:0 0 26px;
     background:rgba(217,182,95,.06); border:1px dashed var(--gold-dim);
@@ -66,7 +66,7 @@
   .banner code{background:rgba(255,255,255,.06); padding:1px 5px; border-radius:4px; font-size:12.5px;}
   .banner .ic{flex-shrink:0; line-height:1.4;}
 
-  /* ---------- Anzeigetafel ---------- */
+  /* ---------- scoreboard ---------- */
   .board{display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:stretch; margin-bottom:26px;}
   .tile{background:var(--card); border:1px solid var(--border-soft); border-radius:16px;
         padding:20px 16px; text-align:center; position:relative; overflow:hidden;
@@ -88,13 +88,13 @@
   .mid span{font-size:12px; letter-spacing:.16em; color:var(--text-faint);
             text-transform:uppercase; font-weight:600;}
 
-  /* ---------- Panels ---------- */
+  /* ---------- panels ---------- */
   .panel{background:var(--card); border:1px solid var(--border-soft);
          border-radius:18px; padding:26px 22px; margin-bottom:22px;}
   .panel h2{margin:0 0 4px; font-size:16px; font-weight:700; letter-spacing:-.01em;}
   .panel .hint{margin:0 0 20px; font-size:13px; color:var(--text-faint);}
 
-  /* ---------- Donut ---------- */
+  /* ---------- donut ---------- */
   .chartrow{display:flex; align-items:center; justify-content:center; gap:34px; flex-wrap:wrap;}
   .donutbox{position:relative; width:230px; height:230px; max-width:100%; flex-shrink:0;}
   .donutbox svg{display:block; width:100%; height:100%;}
@@ -114,7 +114,7 @@
   .legend .vl{margin-left:auto; color:var(--text-dim); font-variant-numeric:tabular-nums; padding-left:14px;}
   .empty-note{color:var(--text-faint); font-size:14px; text-align:center; padding:14px 0 0;}
 
-  /* ---------- Formular ---------- */
+  /* ---------- form ---------- */
   form{display:grid; gap:16px;}
   .field label{display:block; font-size:12px; letter-spacing:.13em; text-transform:uppercase;
                color:var(--text-dim); margin-bottom:7px; font-weight:600;}
@@ -148,7 +148,7 @@
   .msg.err{color:#d98080;}
   .msg.info{color:var(--text-faint);}
 
-  /* ---------- Wählerliste ---------- */
+  /* ---------- voter roll ---------- */
   .roll{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
   .roll .col h3{margin:0 0 12px; font-size:12px; letter-spacing:.15em; text-transform:uppercase;
                 color:var(--mark); font-weight:700;}
@@ -179,9 +179,9 @@
 <div class="wrap">
 
   <header class="top">
-    <span class="eyebrow">Die Volkszählung</span>
+    <span class="eyebrow">The Census</span>
     <h1><span class="a">Arno</span><span class="vs">vs.</span><span class="d">Daniel</span></h1>
-    <p class="sub">Wer hat mehr Namensvettern in der Gruppe? Nur echte Arnos und Daniels stimmen ab. Alle anderen schauen zu.</p>
+    <p class="sub">Who has more namesakes in the group? Only actual Arnos and Daniels get to vote. Everyone else just watches.</p>
   </header>
 
   <div class="banner" id="banner">
@@ -189,7 +189,7 @@
     <span id="banner-text"></span>
   </div>
 
-  <section class="board" aria-label="Zwischenstand">
+  <section class="board" aria-label="Current standing">
     <div class="tile arno" id="tile-arno">
       <span class="crown" aria-hidden="true">&#128081;</span>
       <div class="who">Arnos</div>
@@ -206,80 +206,80 @@
   </section>
 
   <section class="panel">
-    <h2>Verteilung</h2>
-    <p class="hint">Jede Stimme ist eine Person mit diesem Namen.</p>
+    <h2>The split</h2>
+    <p class="hint">Every vote is one person who actually has that name.</p>
     <div class="chartrow">
       <div class="donutbox">
         <svg viewBox="0 0 200 200" role="img" aria-labelledby="chart-title">
-          <title id="chart-title">Anteil der Arnos und Daniels</title>
+          <title id="chart-title">Share of Arnos and Daniels</title>
           <circle cx="100" cy="100" r="72" fill="none" stroke="#1e1a12" stroke-width="26"></circle>
           <g id="segments" transform="rotate(-90 100 100)"></g>
         </svg>
         <div class="center">
           <div class="big" id="total">0</div>
-          <div class="lbl">Stimmen</div>
+          <div class="lbl">Votes</div>
         </div>
       </div>
       <div class="legend">
-        <div class="row"><span class="sw" style="--mark:var(--arno)"></span><span class="nm">Arno</span><span class="vl" id="leg-arno">0 &middot; 0 %</span></div>
-        <div class="row"><span class="sw" style="--mark:var(--daniel)"></span><span class="nm">Daniel</span><span class="vl" id="leg-daniel">0 &middot; 0 %</span></div>
+        <div class="row"><span class="sw" style="--mark:var(--arno)"></span><span class="nm">Arno</span><span class="vl" id="leg-arno">0 &middot; 0%</span></div>
+        <div class="row"><span class="sw" style="--mark:var(--daniel)"></span><span class="nm">Daniel</span><span class="vl" id="leg-daniel">0 &middot; 0%</span></div>
       </div>
     </div>
-    <p class="empty-note" id="empty-note">Noch keine Stimmen. Macht den Anfang.</p>
+    <p class="empty-note" id="empty-note">No votes yet. Someone has to go first.</p>
   </section>
 
   <section class="panel">
-    <h2>Deine Stimme</h2>
-    <p class="hint">Nur eintragen, wenn du wirklich Arno oder Daniel heisst. Ein Handle, eine Stimme.</p>
+    <h2>Your vote</h2>
+    <p class="hint">Only fill this in if your name really is Arno or Daniel. One handle, one vote.</p>
     <form id="vote-form" autocomplete="off">
       <div class="field">
-        <label for="name">Dein Name</label>
-        <input type="text" id="name" name="name" placeholder="z. B. Arno Meier" maxlength="40" required>
+        <label for="name">Your name</label>
+        <input type="text" id="name" name="name" placeholder="e.g. Arno Meier" maxlength="40" required>
       </div>
       <div class="field">
-        <label for="handle">Dein Telegram-Handle</label>
-        <input type="text" id="handle" name="handle" placeholder="@deinhandle" maxlength="40" required>
+        <label for="handle">Your Telegram handle</label>
+        <input type="text" id="handle" name="handle" placeholder="@yourhandle" maxlength="40" required>
       </div>
       <div class="field">
-        <label>Du bist &hellip;</label>
+        <label>You are &hellip;</label>
         <div class="picks">
-          <button type="button" class="pick arno" data-side="arno" aria-pressed="false"><small>Ich bin ein</small>Arno</button>
-          <button type="button" class="pick daniel" data-side="daniel" aria-pressed="false"><small>Ich bin ein</small>Daniel</button>
+          <button type="button" class="pick arno" data-side="arno" aria-pressed="false"><small>I&rsquo;m an</small>Arno</button>
+          <button type="button" class="pick daniel" data-side="daniel" aria-pressed="false"><small>I&rsquo;m a</small>Daniel</button>
         </div>
       </div>
-      <button type="submit" class="submit" id="submit">Stimme abgeben</button>
+      <button type="submit" class="submit" id="submit">Cast my vote</button>
       <p class="msg info" id="msg" role="status" aria-live="polite"></p>
     </form>
   </section>
 
   <section class="panel">
-    <h2>Wer hat abgestimmt</h2>
-    <p class="hint">&Ouml;ffentlich, damit niemand schummelt.</p>
+    <h2>Who voted</h2>
+    <p class="hint">Public, so nobody cheats.</p>
     <div class="roll">
       <div class="col arno">
         <h3>Team Arno (<span id="roll-count-arno">0</span>)</h3>
         <ul id="roll-arno"></ul>
-        <p class="none" id="none-arno">Noch niemand.</p>
+        <p class="none" id="none-arno">Nobody yet.</p>
       </div>
       <div class="col daniel">
         <h3>Team Daniel (<span id="roll-count-daniel">0</span>)</h3>
         <ul id="roll-daniel"></ul>
-        <p class="none" id="none-daniel">Noch niemand.</p>
+        <p class="none" id="none-daniel">Nobody yet.</p>
       </div>
     </div>
   </section>
 
   <footer>
-    Eine Stimme pro Telegram-Handle. Wer nochmal abstimmt, &auml;ndert seine eigene Stimme.
-    <span class="dot">&bull;</span> Die Liste ist &ouml;ffentlich.
+    One vote per Telegram handle. Voting again changes your own vote instead of adding a new one.
+    <span class="dot">&bull;</span> The list is public.
   </footer>
 </div>
 
 <script type="module">
 /* ==========================================================================
-   KONFIGURATION — hier die Firebase-Daten eintragen (siehe README.md).
-   Solange databaseURL leer ist, läuft die Seite im Demo-Modus: Stimmen
-   bleiben nur im eigenen Browser und sind für niemanden sonst sichtbar.
+   CONFIG — put your Firebase details here (see README.md).
+   While databaseURL is empty the page runs in demo mode: votes stay in this
+   browser only and nobody else can see them.
    ========================================================================== */
 const FIREBASE_CONFIG = {
   apiKey: "",
@@ -299,9 +299,9 @@ let chosen = null;   // "arno" | "daniel"
 let backend = null;  // { save(key, rec) }
 let ready = false;
 
-/* ---------- Helfer ---------- */
+/* ---------- helpers ---------- */
 
-// Firebase-Keys dürfen . # $ [ ] / nicht enthalten.
+// Firebase keys cannot contain . # $ [ ] /
 function handleKey(raw){
   return raw.trim().toLowerCase().replace(/^@+/, "").replace(/[^a-z0-9_]+/g, "_").slice(0, 40);
 }
@@ -322,7 +322,7 @@ function showBanner(html){
   el("banner").classList.add("show");
 }
 
-/* ---------- Auswertung und Darstellung ---------- */
+/* ---------- counting and rendering ---------- */
 
 function tally(){
   const t = { arno: [], daniel: [] };
@@ -333,7 +333,7 @@ function tally(){
   return t;
 }
 
-// Donut, Radius 72, Strichstärke 26, mit 2px-Lücke zwischen den Segmenten.
+// Donut, radius 72, stroke 26, with a 2px gap between the two segments.
 function drawDonut(a, d){
   const g = el("segments");
   g.innerHTML = "";
@@ -360,7 +360,7 @@ function drawDonut(a, d){
     c.setAttribute("stroke-dashoffset", String(-(offset + gap / 2)));
     c.setAttribute("class", "donut-seg");
     const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-    title.textContent = LABEL[side] + ": " + n + " (" + Math.round(share * 100) + " %)";
+    title.textContent = LABEL[side] + ": " + n + " (" + Math.round(share * 100) + "%)";
     c.appendChild(title);
     g.appendChild(c);
     offset += share * C;
@@ -377,11 +377,11 @@ function render(){
 
   el("count-arno").textContent = a;
   el("count-daniel").textContent = d;
-  el("pct-arno").textContent = total ? pa + " %" : "—";
-  el("pct-daniel").textContent = total ? pd + " %" : "—";
+  el("pct-arno").textContent = total ? pa + "%" : "—";
+  el("pct-daniel").textContent = total ? pd + "%" : "—";
   el("total").textContent = total;
-  el("leg-arno").textContent = a + " · " + pa + " %";
-  el("leg-daniel").textContent = d + " · " + pd + " %";
+  el("leg-arno").textContent = a + " · " + pa + "%";
+  el("leg-daniel").textContent = d + " · " + pd + "%";
 
   el("tile-arno").classList.toggle("lead", a > d);
   el("tile-daniel").classList.toggle("lead", d > a);
@@ -399,7 +399,7 @@ function render(){
   });
 }
 
-/* ---------- Eingabe ---------- */
+/* ---------- input ---------- */
 
 document.querySelectorAll(".pick").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -412,17 +412,17 @@ document.querySelectorAll(".pick").forEach((btn) => {
 
 el("vote-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!ready){ setMsg("Verbindung wird noch aufgebaut, einen Moment.", "info"); return; }
+  if (!ready){ setMsg("Still connecting, give it a second.", "info"); return; }
 
   const name = el("name").value.trim();
   const handleRaw = el("handle").value.trim();
   const key = handleKey(handleRaw);
 
-  if (name.length < 2){ setMsg("Bitte trag deinen Namen ein.", "err"); return; }
-  if (!key){ setMsg("Bitte trag dein Telegram-Handle ein.", "err"); return; }
-  if (!chosen){ setMsg("Wähle noch aus, ob du ein Arno oder ein Daniel bist.", "err"); return; }
+  if (name.length < 2){ setMsg("Please enter your name.", "err"); return; }
+  if (!key){ setMsg("Please enter your Telegram handle.", "err"); return; }
+  if (!chosen){ setMsg("Pick whether you're an Arno or a Daniel.", "err"); return; }
 
-  // Sanfte Plausibilitätsprüfung: blockiert nicht, Spitznamen sind erlaubt.
+  // Soft plausibility check: never blocks, nicknames still work.
   const looksRight = name.toLowerCase().indexOf(chosen) !== -1;
   const existing = votes[key];
 
@@ -436,11 +436,11 @@ el("vote-form").addEventListener("submit", async (e) => {
   el("submit").disabled = true;
   try {
     await backend.save(key, rec);
-    votes[key] = rec;              // im Demo-Modus gibt es keinen Live-Listener
+    votes[key] = rec;              // demo mode has no live listener
     render();
-    let note = existing ? "Deine Stimme wurde aktualisiert." : "Stimme gezählt. Danke!";
+    let note = existing ? "Your vote has been updated." : "Vote counted. Thanks!";
     if (!looksRight){
-      note += " (Dein Name sieht nicht nach " + LABEL[chosen] + " aus — die Liste ist öffentlich.)";
+      note += " (Your name doesn't look much like " + LABEL[chosen] + " — and the list is public.)";
     }
     setMsg(note, "ok");
     el("vote-form").reset();
@@ -448,13 +448,13 @@ el("vote-form").addEventListener("submit", async (e) => {
     document.querySelectorAll(".pick").forEach((b) => b.setAttribute("aria-pressed", "false"));
   } catch (err) {
     console.error(err);
-    setMsg("Speichern hat nicht geklappt. Lade die Seite neu und versuch es nochmal.", "err");
+    setMsg("That didn't save. Reload the page and try again.", "err");
   } finally {
     el("submit").disabled = false;
   }
 });
 
-/* ---------- Datenspeicher ---------- */
+/* ---------- data store ---------- */
 
 async function boot(){
   render();
@@ -466,12 +466,12 @@ async function boot(){
       save(key, rec){
         votes[key] = rec;
         try { localStorage.setItem("avd-votes", JSON.stringify(votes)); }
-        catch (err) { /* privates Fenster: Stimme bleibt nur in dieser Sitzung */ }
+        catch (err) { /* private window: the vote lasts for this session only */ }
         return Promise.resolve();
       }
     };
     ready = true;
-    showBanner("<b>Demo-Modus.</b> Stimmen werden nur in diesem Browser gespeichert und sind für niemanden sonst sichtbar. Trag die Firebase-Daten in <code>index.html</code> ein, damit die Gruppe gemeinsam abstimmen kann — siehe README.");
+    showBanner("<b>Demo mode.</b> Votes are saved in this browser only and nobody else can see them. Add your Firebase details to <code>index.html</code> so the whole group can vote together — see the README.");
     render();
     return;
   }
@@ -492,11 +492,11 @@ async function boot(){
       render();
     }, (err) => {
       console.error(err);
-      showBanner("<b>Keine Verbindung zur Datenbank.</b> Prüfe die Firebase-Konfiguration und die Datenbank-Regeln.");
+      showBanner("<b>No connection to the database.</b> Check the Firebase config and the database rules.");
     });
   } catch (err) {
     console.error(err);
-    showBanner("<b>Firebase konnte nicht geladen werden.</b> Prüfe die Verbindung und die Konfiguration in <code>index.html</code>.");
+    showBanner("<b>Firebase failed to load.</b> Check your connection and the config in <code>index.html</code>.");
   }
 }
 
