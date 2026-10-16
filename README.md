@@ -30,6 +30,14 @@ nobody else sees them. A gold banner at the top of the page says so.
 > These keys belong in the source and are not secrets — access is controlled by
 > the database rules, not by the key.
 
+### Anonymous sign-in
+
+**Build → Authentication → Get started → Sign-in method → Anonymous → Enable.**
+
+Nobody ever sees a login screen: the page signs each visitor in silently in the
+background. It exists so the rules below can require a signed-in user, which keeps
+random scripts off the database.
+
 ### Database rules
 
 A new database denies every read and write until you publish rules. Paste these
@@ -40,9 +48,9 @@ page shows "No connection to the database":
 {
   "rules": {
     "votes": {
-      ".read": true,
+      ".read": "auth != null",
       "$handle": {
-        ".write": "newData.exists()",
+        ".write": "auth != null && newData.exists()",
         ".validate": "newData.hasChildren(['name','handle','side','ts']) && newData.child('side').val().matches(/^(arno|daniel)$/) && newData.child('name').isString() && newData.child('name').val().length <= 40 && newData.child('handle').isString() && newData.child('handle').val().length <= 41 && newData.child('ts').isNumber()"
       }
     }
@@ -50,9 +58,12 @@ page shows "No connection to the database":
 }
 ```
 
-That lets anyone read the votes and cast a valid one, but keeps arbitrary data out
-of the database and stops anyone deleting someone else's vote from the page. You
-can still clear votes yourself from the Firebase console.
+That lets any visitor of the page read the votes and cast a valid one, but keeps
+arbitrary data out of the database and stops anyone deleting someone else's vote
+from the page. You can still clear votes yourself from the Firebase console.
+
+Enabling Anonymous sign-in does **not** change the rules — they are a separate
+screen, and a new database denies everything until these are published.
 
 ---
 

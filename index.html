@@ -478,10 +478,23 @@ async function boot(){
 
   try {
     const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const { getAuth, signInAnonymously } =
+      await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
     const { getDatabase, ref, onValue, set } =
       await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
 
     const app = initializeApp(FIREBASE_CONFIG);
+
+    // Anonymous sign-in: nobody sees a login screen, but the database rules can
+    // still require a signed-in user. Must finish before the first read/write.
+    try {
+      await signInAnonymously(getAuth(app));
+    } catch (err) {
+      console.error(err);
+      showBanner("<b>Could not sign in.</b> Turn on Anonymous sign-in under Firebase &rarr; Authentication &rarr; Sign-in method.");
+      return;
+    }
+
     const db = getDatabase(app);
 
     backend = { save: (key, rec) => set(ref(db, "votes/" + key), rec) };
@@ -492,7 +505,7 @@ async function boot(){
       render();
     }, (err) => {
       console.error(err);
-      showBanner("<b>No connection to the database.</b> Check the Firebase config and the database rules.");
+      showBanner("<b>No connection to the database.</b> The database rules are rejecting this page — check Realtime Database &rarr; Rules.");
     });
   } catch (err) {
     console.error(err);
