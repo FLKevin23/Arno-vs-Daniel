@@ -17,7 +17,8 @@ nobody else sees them. A gold banner at the top of the page says so.
    **Add project** → name it something like `arno-vs-daniel` → you can switch off
    Google Analytics.
 2. In the left menu: **Build → Realtime Database** → **Create database** → pick a
-   region (`europe-west1`) → **Start in test mode**.
+   region (`europe-west1`). Locked mode is fine — the rules below open exactly
+   what the page needs.
 3. The database URL is now shown at the top, something like
    `https://arno-vs-daniel-default-rtdb.europe-west1.firebasedatabase.app`.
 4. Go to **Project settings** (gear icon) → under "Your apps" click the
@@ -31,8 +32,9 @@ nobody else sees them. A gold banner at the top of the page says so.
 
 ### Database rules
 
-Test mode expires after 30 days. Replace the rules under
-**Realtime Database → Rules** with:
+A new database denies every read and write until you publish rules. Paste these
+under **Realtime Database → Rules** and click **Publish** — without this step the
+page shows "No connection to the database":
 
 ```json
 {
@@ -40,16 +42,17 @@ Test mode expires after 30 days. Replace the rules under
     "votes": {
       ".read": true,
       "$handle": {
-        ".write": true,
-        ".validate": "newData.hasChildren(['name','handle','side','ts']) && newData.child('side').val().matches(/^(arno|daniel)$/) && newData.child('name').isString() && newData.child('name').val().length <= 40 && newData.child('handle').isString() && newData.child('handle').val().length <= 41"
+        ".write": "newData.exists()",
+        ".validate": "newData.hasChildren(['name','handle','side','ts']) && newData.child('side').val().matches(/^(arno|daniel)$/) && newData.child('name').isString() && newData.child('name').val().length <= 40 && newData.child('handle').isString() && newData.child('handle').val().length <= 41 && newData.child('ts').isNumber()"
       }
     }
   }
 }
 ```
 
-That lets anyone read the votes and write a valid one, but keeps arbitrary data
-out of the database.
+That lets anyone read the votes and cast a valid one, but keeps arbitrary data out
+of the database and stops anyone deleting someone else's vote from the page. You
+can still clear votes yourself from the Firebase console.
 
 ---
 
