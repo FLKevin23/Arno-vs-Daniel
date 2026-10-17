@@ -1,116 +1,166 @@
-# Arno vs. Daniel
+# Arno vs. Daniel — v2
 
-A small voting page for the Telegram group: who has more namesakes, the Arnos or
-the Daniels? Each person enters their name and Telegram handle and picks their
-side. The page shows a live donut chart and the public list of everyone who voted.
+Who has more namesakes in the group, the Arnos or the Daniels? One vote per
+verified Telegram account, counted live.
 
-One `index.html` — no build step, no dependencies, runs straight on GitHub Pages.
+Static frontend on GitHub Pages, Firebase for identity and data. No server to
+run, no password anywhere.
 
 ---
 
-## 1. Set up Firebase (about 3 minutes)
+## Why there is a v2
 
-Without this the page runs in **demo mode**: votes stay in your own browser and
-nobody else sees them. A gold banner at the top of the page says so.
+v1 was open to anyone with a loop: it used anonymous auth, and the database rules
+allowed any signed-in user to write *any* record. Identity was never bound to the
+row. 1147 votes arrived in a few minutes, 1004 of them for one side, timestamped
+one millisecond apart.
 
-1. Open [console.firebase.google.com](https://console.firebase.google.com) →
-   **Add project** → name it something like `arno-vs-daniel` → you can switch off
-   Google Analytics.
-2. In the left menu: **Build → Realtime Database** → **Create database** → pick a
-   region (`europe-west1`). Locked mode is fine — the rules below open exactly
-   what the page needs.
-3. The database URL is now shown at the top, something like
-   `https://arno-vs-daniel-default-rtdb.europe-west1.firebasedatabase.app`.
-4. Go to **Project settings** (gear icon) → under "Your apps" click the
-   **web icon `</>`** → register the app → you get a `firebaseConfig` object.
-5. Copy those values into the `FIREBASE_CONFIG` block near the top of the script
-   in [`index.html`](index.html) (`apiKey`, `authDomain`, `databaseURL`,
-   `projectId`, `appId`).
+The fix is not secrecy, it is authorisation:
 
-> These keys belong in the source and are not secrets — access is controlled by
-> the database rules, not by the key.
+| v1 | v2 |
+|---|---|
+| Anyone could mint an identity anonymously | Identity comes from Telegram, HMAC-verified server-side |
+| Any user could write any record | Clients cannot write votes **at all** — only the backend can |
+| Side and handle were typed into a form | Both derived from the verified Telegram name |
+| Full names published | Only a masked handle (`@arn***`) is public |
+| No way to remove your data | "Remove my vote" deletes the record |
+| Untyped single file, no checks | TypeScript strict, lint, tests, CI |
 
-### Anonymous sign-in
+---
 
-**Build → Authentication → Get started → Sign-in method → Anonymous → Enable.**
+## Architecture
 
-Nobody ever sees a login screen: the page signs each visitor in silently in the
-background. It exists so the rules below can require a signed-in user, which keeps
-random scripts off the database.
-
-### Database rules
-
-A new database denies every read and write until you publish rules. Paste these
-under **Realtime Database → Rules** and click **Publish** — without this step the
-page shows "No connection to the database":
-
-```json
-{
-  "rules": {
-    "votes": {
-      ".read": "auth != null",
-      "$handle": {
-        ".write": "auth != null && newData.exists()",
-        ".validate": "newData.hasChildren(['name','handle','side','ts']) && newData.child('side').val().matches(/^(arno|daniel)$/) && newData.child('name').isString() && newData.child('name').val().length <= 40 && newData.child('handle').isString() && newData.child('handle').val().length <= 41 && newData.child('ts').isNumber()"
-      }
-    }
-  }
-}
+```
+GitHub Pages (static)                Firebase (europe-west1)
+┌───────────────────────┐            ┌──────────────────────────────┐
+│ index.html + TS/Vite  │ ─ callable │ tgAuth     verify + mint      │
+│ Telegram Login Widget │ ─────────▶ │ castVote   derive side, write │
+│ Firestore SDK (read)  │ ◀───────── │ deleteVote erase own record   │
+└───────────────────────┘   snapshot │ Firestore rules (read-only)   │
+                                     └──────────────────────────────┘
 ```
 
-That lets any visitor of the page read the votes and cast a valid one, but keeps
-arbitrary data out of the database and stops anyone deleting someone else's vote
-from the page. You can still clear votes yourself from the Firebase console.
+**The security model in one line:** no client can write a vote, so no client can
+forge one. Votes are written only by `castVote`, which reads the caller's
+Telegram-verified identity from `identities/` and derives the side itself.
 
-Enabling Anonymous sign-in does **not** change the rules — they are a separate
-screen, and a new database denies everything until these are published.
+### Data
+
+```
+votes/{uid}         public   side, handleMasked, createdAt, updatedAt, revision
+identities/{uid}    private  telegramId, firstName, lastName, username, side
+auditLog/{id}       private  deletions
+rateLimits/{hash}   private  per-IP throttle for tgAuth
+```
+
+`uid` is always `tg:<telegram id>`, so one Telegram account is exactly one row —
+that is what makes "one vote per handle" true rather than aspirational.
+
+Nothing in `votes/` can identify a person beyond the first three characters of
+their handle. The real identity never leaves the backend.
 
 ---
 
-## 2. Publish on GitHub Pages
+## Setup
+
+### 1. Firebase
+
+1. **Blaze plan.** Cloud Functions require it: Console → ⚙ → Usage and billing →
+   Modify plan → Blaze. This workload sits inside the free allowance; set a
+   budget alert at a few francs if you want a tripwire.
+2. **Firestore.** Build → Firestore Database → Create → `europe-west1` →
+   **production mode** (the rules in this repo replace the defaults).
+3. **Authentication.** Build → Authentication → Get started. No provider needs
+   enabling: sign-in happens with custom tokens minted by `tgAuth`.
+   Turn **off** Anonymous if v1 left it on — nothing uses it now.
+4. **Authorized domains.** Authentication → Settings → Authorized domains:
+   keep only `flkevin23.github.io` and `localhost` (S9).
+
+### 2. Telegram bot
+
+1. Message [@BotFather](https://t.me/BotFather) → `/newbot` → follow the prompts.
+2. `/setdomain` → pick the bot → send `flkevin23.github.io`.
+   The login widget refuses to load on any other domain.
+3. Put the bot's **username** (no `@`) in [`src/config.ts`](src/config.ts) as
+   `TELEGRAM_BOT_USERNAME`.
+4. Put the bot **token** in Secret Manager — never in the repo:
 
 ```bash
-git remote add origin https://github.com/<your-user>/arno-vs-daniel.git
-git branch -M main
-git push -u origin main
+npx firebase login
+npx firebase functions:secrets:set TELEGRAM_BOT_TOKEN
+# paste the token when prompted
 ```
 
-Then in the repository: **Settings → Pages → Source: Deploy from a branch →
-Branch `main`, folder `/ (root)` → Save.**
+### 3. Deploy the backend
 
-A minute or two later the page is live at
-`https://<your-user>.github.io/arno-vs-daniel/` — that's the link for the group.
+```bash
+npm install
+npm install --prefix functions
+npm run deploy:backend     # Firestore rules + the three functions
+```
+
+### 4. Deploy the frontend
+
+Settings → Pages → **Source: GitHub Actions** (not "Deploy from a branch").
+Then every push to `main` builds and publishes automatically.
+
+The site lands at `https://flkevin23.github.io/Arno-vs-Daniel/`.
+
+### 5. App Check — last
+
+Only after voting works end to end (handoff step 9, so a misconfiguration can't
+lock everyone out):
+
+1. Console → App Check → register the web app with reCAPTCHA v3.
+2. Put the site key in `src/config.ts` as `APP_CHECK_SITE_KEY`.
+3. Set `ENFORCE_APP_CHECK = true` in `functions/src/index.ts`, redeploy.
+4. Enforce on Firestore in the console.
+
+### 6. Clean up v1
+
+The old Realtime Database still holds the 1147 junk votes and nothing reads it.
+Console → Realtime Database → ⋮ → delete the instance, or clear the `votes` node.
 
 ---
 
-## How the vote works
+## Who can vote
 
-- **One vote per Telegram handle.** The handle is the key, so voting again
-  updates your own vote instead of adding a second one.
-- **The list is public.** Every vote appears with its name and handle at the
-  bottom of the page. That's the real safeguard — in a group of friends, a name
-  that doesn't belong gets spotted immediately.
-- **Soft name check.** If the name doesn't match the chosen side (say "Peter"
-  picks "I'm an Arno"), a note appears. It isn't blocked, so nicknames like
-  "Dani" still work.
-- **No login.** Without sign-in, anyone could technically enter someone else's
-  handle. For a group of friends the public list is enough; making it airtight
-  would mean a Telegram login.
+Your side is derived from your Telegram name, never chosen in a form:
 
-## Data model
+- `Arno`, `@arno_almagro` → Arno
+- `Daniel`, `Dani`, `Danny` → Daniel
+- `Arnold` → nobody (whole-token match, so Arnold is not an Arno)
+- `Peter` → nobody; signs in, sees the chart, cannot vote
+- `Arno Daniel` → nobody; ambiguous by design, rather than letting them pick
 
+The token lists live at the top of
+[`functions/src/telegram.ts`](functions/src/telegram.ts). If the group has a
+nickname this misses, add it there and redeploy — it is the only place the
+mapping exists.
+
+---
+
+## Development
+
+```bash
+npm run dev                   # vite dev server
+npm run check                 # typecheck + lint (innerHTML is a lint error, S7)
+npm run build                 # production build into dist/
+npm test --prefix functions   # 25 tests: signature forgery, replay, derivation
 ```
-votes/
-  arnom:  { name: "Arno Meier",   handle: "@arnom", side: "arno",   ts: 1760… }
-  danif:  { name: "Daniel Furrer", handle: "@danif", side: "daniel", ts: 1760… }
-```
 
-The key is the lower-cased handle without `@` and without special characters.
+The test suite covers the attacks that matter: tampered id, tampered username,
+wrong bot token, forged hash, injected fields, replayed and future-dated logins.
+Run it before touching `telegram.ts`.
 
-## Colours
+CI runs all of it on every push and refuses to deploy if anything fails.
 
-The two chart colours aren't a style choice, they're checked for legibility: gold
-`#b88a1e` and steel blue `#3f7fb8` stay far apart under every red-green colour
-vision deficiency (ΔE 22 against a target of 8) and both clear 3:1 contrast on the
-black background. Gold and silver would have matched the theme more closely but
-would have been indistinguishable for colourblind readers.
+---
+
+## Notes on what is and isn't secret
+
+`src/config.ts` holds the Firebase web config, and that is correct. It is a
+project identifier, not a credential — every Firebase web app ships it in page
+source, and it cannot be removed from a static site because the page needs it to
+find the project. Access is decided by the Firestore rules, the functions and App
+Check. The bot token is the real secret and lives only in Secret Manager.

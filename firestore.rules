@@ -1,0 +1,47 @@
+rules_version = '2';
+
+// Arno vs. Daniel — authoritative access control.
+//
+// Design note (deviation from handoff §1.3, deliberate):
+// the handoff has clients writing votes/{uid} with uid-bound rules. But §1.2
+// also requires `side` to come from the Telegram-verified identity and NOT be
+// free input, and S5 requires full names never to be public. A client-written
+// document cannot satisfy either: whatever the client sends, it chose.
+//
+// So votes are written ONLY by the Cloud Functions (Admin SDK, which bypasses
+// these rules). Clients get no write path at all, which is strictly stronger
+// than uid-bound writes and makes the acceptance criterion "cannot
+// create/overwrite/delete a vote outside one's own uid" hold by construction:
+// nobody can write any vote, from any uid, ever.
+//
+// Privacy (S5): votes/{uid} is public but holds no full name and no raw
+// handle — only a masked handle. The verified Telegram identity lives in
+// identities/{uid}, which no client can read.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Public tally. Readable signed-out so viewers can watch without logging
+    // in to Telegram. Contains: side, handleMasked, createdAt, updatedAt,
+    // revision — never a full name, never a raw handle.
+    match /votes/{uid} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Verified Telegram identity, server-only. Never leaves the backend.
+    match /identities/{uid} {
+      allow read, write: if false;
+    }
+
+    // Audit trail for deletions (right to erasure, S4), server-only.
+    match /auditLog/{entryId} {
+      allow read, write: if false;
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+functions/node_modules/
+functions/lib/
+.firebase/
+*.log
+.env
+.env.*
+.DS_Store

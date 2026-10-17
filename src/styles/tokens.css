@@ -1,0 +1,23 @@
+:root {
+  --bg: #0b0a07;
+  --card: #15120c;
+  --card-2: #1b1710;
+  --border: #2e2718;
+  --border-soft: #241e13;
+  --gold: #d9b65f;
+  --gold-dim: #8a7640;
+  --text: #f3efe4;
+  --text-dim: #b3ab97;
+  --text-faint: #7d765f;
+
+  /* Chart marks. Validated: CVD ΔE 22.4 (target 8), normal vision ΔE 24.9,
+     contrast > 3:1 on the page surface. Gold/silver would match the theme more
+     closely but is indistinguishable for colourblind readers. */
+  --arno: #b88a1e;
+  --daniel: #3f7fb8;
+  --arno-lift: #d9a52c;
+  --daniel-lift: #5a9bd4;
+
+  --ok: #7fbf7f;
+  --err: #d98080;
+}
