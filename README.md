@@ -63,6 +63,9 @@ their handle. The real identity never leaves the backend.
 
 ## Setup
 
+> Step-by-step with checkpoints: **[SETUP.md](SETUP.md)**. The summary below
+> is the same thing in brief.
+
 ### 1. Firebase
 
 1. **Blaze plan.** Cloud Functions require it: Console → ⚙ → Usage and billing →
