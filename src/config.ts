@@ -24,7 +24,7 @@ export const FUNCTIONS_REGION = "europe-west1";
  * The same bot must have its domain set to flkevin23.github.io
  * (BotFather -> /setdomain).
  */
-export const TELEGRAM_BOT_USERNAME: string = "";
+export const TELEGRAM_BOT_USERNAME: string = "ArnoVsDanielVoteBot";
 
 /**
  * reCAPTCHA v3 site key for App Check. Leave empty until handoff step 9 —
